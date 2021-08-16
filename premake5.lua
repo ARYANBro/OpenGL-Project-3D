@@ -1,5 +1,7 @@
 workspace "OpenGL-Project-3D"
-	configurations { "Debug", "Relaese" }
+	configurations { "Debug", "Release" }
+
+include "Build/premake/actions.lua"
 
 project "OpenGL-Project-3D"
 	kind "ConsoleApp"
