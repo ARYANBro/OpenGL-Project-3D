@@ -1,5 +1,7 @@
 #include "ShaderProgram.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <utility>
 #include <memory>
 
@@ -48,7 +50,7 @@ void ShaderProgram::AttachShader(const std::string& source, GLenum type)
 		glGetShaderInfoLog(shader, infoLogLength, nullptr, infoLog.get());
 
 		using namespace std::string_literals;
-		throw std::runtime_error("Shader failed to compile:\n"s + infoLog.get());
+		throw ShaderCompilationError(type, infoLog.get());
 	}
 
 	glAttachShader(m_RendererID, shader);
@@ -71,11 +73,31 @@ void ShaderProgram::Link()
 		glGetProgramInfoLog(m_RendererID, infoLogLength, nullptr, infoLog.get());
 
 		using namespace std::string_literals;
-		throw std::runtime_error("Shader Program failed to link:\n"s + infoLog.get());
+		throw ShaderLinkError(infoLog.get());
 	}
 
 	for (auto& shader : m_Shaders)
 		glDeleteShader(shader);
+}
+
+void ShaderProgram::SetFloat(const std::string& name, float value) const
+{
+	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+
+	if (location == -1)
+		throw ShaderError(name + " uniform location not found");
+
+	glProgramUniform1f(m_RendererID, location, value);
+}
+
+void ShaderProgram::SetMat4(const std::string& name, glm::mat4 value) const
+{
+	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+
+	if (location == -1)
+		throw ShaderError(name + " uniform location not found");
+
+	glProgramUniformMatrix4fv(m_RendererID, location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) noexcept

@@ -14,12 +14,20 @@ project "OpenGL-Project-3D"
 	targetdir "Bin/%{cfg.buildcfg}"
 	objdir "Obj/%{cfg.buildcfg}"
 
-	files { "Source/**.cpp", "Source/**.h" }
+	files
+	{
+		"Source/**.cpp", "Source/**.h",
+
+		"Vendor/glm/**.hpp",
+		"Vendor/glm/**.inl",
+		"Vendor/glm/**.h"
+	}
 
 	includedirs
 	{
 		"Vendor/glfw/include",
-		"Vendor/glad/include"
+		"Vendor/glad/include",
+		"Vendor/glm"
 	}
 
 	links

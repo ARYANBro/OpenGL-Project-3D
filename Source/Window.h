@@ -4,16 +4,15 @@
 
 class GLFWwindow;
 
+struct WindowProps
+{
+	int Width;
+	int Height;
+	std::string Title;
+};
+
 class Window
 {
-public:
-	struct WindowProps
-	{
-		int Width;
-		int Height;
-		std::string Title;
-	};
-
 public:
 	Window(const WindowProps& windowProps);
 	Window(const Window&) = delete;
@@ -25,7 +24,7 @@ public:
 	void PollEvents() const noexcept;
 	void SwapBuffer() const noexcept;
 
-	const WindowProps& GetProps() const noexcept { return m_WindowProps; }
+	const WindowProps& GetProperties() const noexcept { return m_WindowProps; }
 	GLFWwindow* GetHandle() const noexcept { return m_WindowHandle; }
 
 private:

@@ -9,9 +9,4 @@ newaction
 		os.remove("Bin/**")
 		os.remove("Obj/**")
 	end,
-
-	onEnd = function()
-		print("Done.")
-	end
-
 }
