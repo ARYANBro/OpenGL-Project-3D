@@ -5,7 +5,7 @@
 class Camera
 {
 public:
-	struct CameraProperties
+	struct CameraProps
 	{
 		float Fov;
 		float AspectRatio;
@@ -35,9 +35,9 @@ public:
 	void Translate(glm::vec3 position) noexcept { m_Position = position; }
 	void LookAt(glm::vec3 direction) noexcept { m_Direction = glm::normalize(direction); }
 
-	void SetCameraProperties(CameraProperties cameraProps) { m_CameraProps = cameraProps; }
+	void SetCameraProperties(CameraProps cameraProps) { m_CameraProps = cameraProps; }
 
-	CameraProperties GetCameraProperties() const noexcept { return m_CameraProps; }
+	CameraProps GetCameraProperties() const noexcept { return m_CameraProps; }
 	const glm::mat4& GetProjectionTransform() const noexcept { return m_ProjectionTransform; }
 	const glm::mat4& GetViewTransform() const noexcept { return m_ViewTransform; }
 	Rotation GetRotation() const noexcept { return m_Rotation; }
@@ -45,7 +45,7 @@ public:
 	DirectionalVectors GetDirectionalVectors() const noexcept { return m_DirectionalVecs; }
 
 private:
-	CameraProperties m_CameraProps;
+	CameraProps m_CameraProps;
 	glm::mat4 m_ProjectionTransform;
 	glm::mat4 m_ViewTransform;
 

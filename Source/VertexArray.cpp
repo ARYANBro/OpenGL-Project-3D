@@ -53,5 +53,5 @@ void VertexArray::DisableAttribute(std::size_t attributeIndex) const noexcept
 
 void VertexArray::SetAttributeFormat(std::size_t attributeIndex, AttributeFormat attributeFormat) const noexcept
 {
-	glVertexArrayAttribFormat(m_RendererID, attributeIndex, attributeFormat.Size, attributeFormat.Type, attributeFormat.Normalized ? GL_TRUE : GL_FALSE, attributeFormat.RelativeOffset);
+	glVertexArrayAttribFormat(m_RendererID, attributeIndex, attributeFormat.Size, attributeFormat.Type, attributeFormat.Normalized, attributeFormat.RelativeOffset);
 }

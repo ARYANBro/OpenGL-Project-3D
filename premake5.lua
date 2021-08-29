@@ -20,14 +20,17 @@ project "OpenGL-Project-3D"
 
 		"Vendor/glm/**.hpp",
 		"Vendor/glm/**.inl",
-		"Vendor/glm/**.h"
+		"Vendor/glm/**.h",
+		"Vendor/stb_image/stb_image.cpp",
+		"Vendor/stb_image/stb_image.h"
 	}
 
 	includedirs
 	{
 		"Vendor/glfw/include",
 		"Vendor/glad/include",
-		"Vendor/glm"
+		"Vendor/glm",
+		"Vendor/stb_image"
 	}
 
 	links
