@@ -100,6 +100,16 @@ void ShaderProgram::SetFloat(const std::string& name, float value) const
 	glProgramUniform1f(m_RendererID, location, value);
 }
 
+void ShaderProgram::SetFloat3(const std::string& name, glm::vec3 value) const
+{
+	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+
+	if (location == -1)
+		throw ShaderError(name + " uniform location not found");
+
+	glProgramUniform3f(m_RendererID, location, value.x, value.y, value.z);
+}
+
 void ShaderProgram::SetMat4(const std::string& name, glm::mat4 value) const
 {
 	GLint location = glGetUniformLocation(m_RendererID, name.c_str());

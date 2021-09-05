@@ -32,6 +32,9 @@ void Texture::Load(const std::string& filePath)
 {
 	stbi_uc* pixels = stbi_load(filePath.c_str(), &m_Width, &m_Height, &m_NumColorChannels, 0);
 
+	if (!pixels)
+		throw TextureLoadError(filePath);
+
 	GLenum internalFormat;
 	GLenum dataFormat;
 

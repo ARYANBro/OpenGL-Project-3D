@@ -26,7 +26,6 @@ void Application::Start()
 	while (m_Window.IsOpen())
 	{	
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
-		glClearColor(0.05, 0.05f, 0.05f, 1.0f);
 
 		OnUpdate(DeltaTime::Process());
 		OnRender();

@@ -2,6 +2,26 @@
 
 #include <cstdint>
 #include <string>
+#include <stdexcept>
+
+class TextureError : public std::runtime_error
+{
+public:
+	TextureError(const std::string& message)
+		: std::runtime_error(message) {}
+};
+
+class TextureLoadError : public TextureError
+{
+public:
+	TextureLoadError(const std::string& fileName)
+		: TextureError("Failed to load texture file"), m_FileName(fileName) {}
+
+	const std::string& GetFileName() const noexcept { return m_FileName; }
+
+private:
+	std::string m_FileName;
+};
 
 class Texture
 {
