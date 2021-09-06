@@ -14,6 +14,124 @@ void GameApplication::OnBegin()
 {
 	glfwSetInputMode(GetWindow().GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+	const float vertices[72] = {
+		-0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+
+		-0.5f,  0.5f, 0.5f,
+		 0.5f,  0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		 0.5f, -0.5f, 0.5f,
+
+		-0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f,  0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f,  0.5f,
+
+		0.5f,  0.5f, -0.5f,
+		0.5f,  0.5f,  0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f,  0.5f,
+
+		 0.5f, 0.5f, -0.5f,
+		 0.5f, 0.5f,  0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f,  0.5f,
+
+		 0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f,  0.5f
+	};
+
+	const float textureCoords[48] = {
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f
+	};
+
+	const float normals[72] = {
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+
+		0.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f
+	};
+
+	const unsigned int indices[36] = {
+		0, 1, 2,
+		2, 1, 3,
+
+		4, 5, 6,
+		6, 5, 7,
+
+		8, 9, 10,
+		10, 9, 11,
+
+		12, 13, 14,
+		14, 13, 15,
+
+		16, 17, 18,
+		18, 17, 19,
+
+		20, 21, 22,
+		22, 21, 23
+	};
+
+	m_NumVertexIndex = std::size(indices);
+
 	AttributeFormat attribFormat0 = {
 		.Size = 3,
 		.Type = GL_FLOAT,
@@ -35,15 +153,15 @@ void GameApplication::OnBegin()
 		.RelativeOffset = 0
 	};
 	
-	auto vertexBuffer = std::make_unique<Buffer>(m_Vertices, sizeof(m_Vertices));
-	auto textureCoordsVB = std::make_unique<Buffer>(m_TextureCoords, sizeof(m_TextureCoords));
-	auto normalsVB = std::make_unique<Buffer>(m_Normals, sizeof(m_Normals));
-	auto indexBuffer = std::make_unique<Buffer>(m_Indices, sizeof(m_Indices));
+	auto vertexBuffer = std::make_unique<Buffer>(vertices, sizeof(vertices));
+	auto textureCoordsVB = std::make_unique<Buffer>(textureCoords, sizeof(textureCoords));
+	auto normalsVB = std::make_unique<Buffer>(normals, sizeof(normals));
+	auto indexBuffer = std::make_unique<Buffer>(indices, sizeof(indices));
 
 	m_VertexArray.BindVertexBuffer(0, std::move(vertexBuffer), 3 * sizeof(float));
 	m_VertexArray.BindVertexBuffer(1, std::move(textureCoordsVB), 2 * sizeof(float));
 	m_VertexArray.BindVertexBuffer(2, std::move(normalsVB), 3 * sizeof(float));
-	m_VertexArray.BindIndexBuffer(std::move(indexBuffer), std::size(m_Indices));
+	m_VertexArray.BindIndexBuffer(std::move(indexBuffer), std::size(indices));
 
 	m_VertexArray.BindAttribute(0, 0);
 	m_VertexArray.BindAttribute(1, 1);
@@ -88,39 +206,80 @@ void GameApplication::OnBegin()
 		in vec3 v_Normal;
 		in vec3 v_FragmentPos;
 
-		uniform sampler2D u_DiffuseTex;
-		uniform sampler2D u_SpecularTex;
+		struct Material
+		{
+			sampler2D DiffuseTex;
+			sampler2D SpecularTex;
+			vec3 Color;
+			float AmbientAmt;
+			float SpecularAmt;
+			float Smoothness;
+		};
 
-		uniform vec3 u_Color;
-		uniform float u_Ambient;
-		uniform float u_Smoothness;
-		// uniform float u_SpecularIntensity;
+		struct LightColor
+		{
+			vec3 Color;
+			vec3 SpecularColor;
+			vec3 AmbientColor;
+		};
 
-		uniform vec3 u_LightPos;
-		uniform vec3 u_LightColor;
+		struct AttenuationTerms
+		{
+			float Constant;
+			float Linear;
+			float Quadratic;
+		};
+
+		struct PointLight
+		{
+			vec3 Position;
+			LightColor Color;
+			AttenuationTerms Attenuation;
+		};
+
+		uniform Material u_Material;
+		uniform PointLight u_PointLight;
 
 		uniform vec3 u_ViewPos;
+
+		float CalculateAttenuation(vec3 fragmentPos, vec3 lightPos, AttenuationTerms attenuation)
+		{
+			float distance = length(lightPos - fragmentPos);
+
+			float constant = attenuation.Constant;
+			float linear = attenuation.Linear * distance;
+			float quadratic = attenuation.Quadratic * (distance * distance);
+
+			return 1.0 / (constant + linear + quadratic);
+		}
 
 		void main()
 		{
 			// Diffuse
 			vec3 normal = normalize(v_Normal);
-			vec3 lightDir = normalize(u_LightPos - v_FragmentPos);
-			float lightDotNorm = clamp(dot(normal, lightDir), 0.0f, 1.0f);
+			vec3 lightDir = normalize(u_PointLight.Position - v_FragmentPos);
+			float diffuseAmt = clamp(dot(normal, lightDir), 0.0f, 1.0f);
 
 			// Reflection
 			vec3 viewDir = normalize(u_ViewPos - v_FragmentPos);
-
 			vec3 reflectDir = normalize(reflect(-lightDir, normal));
 			float viewDotReflect = clamp(dot(reflectDir, viewDir), 0.0f, 1.0f);
-			float specular = pow(viewDotReflect, u_Smoothness) * texture2D(u_SpecularTex, v_TextureCoord).x;
+			float specularAmt = pow(viewDotReflect, u_Material.Smoothness * 256);
 
-			vec4 diffuseCol = texture2D(u_DiffuseTex, v_TextureCoord);
+			vec4 specularTex = texture2D(u_Material.SpecularTex, v_TextureCoord);
+			vec4 diffuseCol = texture2D(u_Material.DiffuseTex, v_TextureCoord);
 
-			vec4 diffuse = diffuseCol * lightDotNorm;
-			vec4 ambient = diffuseCol * u_Ambient;
+			vec4 specular = specularAmt * specularTex.r * u_Material.SpecularAmt * vec4(u_PointLight.Color.SpecularColor, 1.0f);
+			vec4 diffuse = diffuseCol * diffuseAmt * vec4(u_PointLight.Color.Color, 0.0f);
+			vec4 ambient = diffuseCol * u_Material.AmbientAmt * vec4(u_PointLight.Color.AmbientColor, 0.0f);
 
-			v_Color = (diffuse + ambient + specular) * vec4(u_Color, 0.0f) * vec4(u_LightColor, 0.0f);
+			float attenuation = CalculateAttenuation(v_FragmentPos, u_PointLight.Position, u_PointLight.Attenuation);
+
+			diffuse *= attenuation;
+			specular *= attenuation;
+			ambient *= attenuation;
+
+			v_Color = (diffuse + ambient + specular) * vec4(u_Material.Color, 0.0f);
 		}
 	)";
 
@@ -172,7 +331,7 @@ void GameApplication::OnBegin()
 	};
 
 	m_Camera.SetCameraProperties(cameraProps);
-	m_Camera.Translate(glm::vec3{ 0.0f, 0.0f, 3.0f });
+	m_Camera.Translate(glm::vec3{ 0.0f, 0.0f, 2.0f });
 	m_Camera.LookAt(glm::vec3{ 0.0f, 0.0f, 0.0f });
 	m_Camera.SetMouseSenstivity(0.15f);
 	m_Camera.SetSpeed(1.5f);
@@ -192,15 +351,36 @@ void GameApplication::OnBegin()
 	m_DiffuseTex.Bind(0);
 	m_SpecularTex.Bind(1);
 
-	m_ShaderProgram.SetInt("u_DiffuseTex", 0);
-	m_ShaderProgram.SetInt("u_SpecularTex", 1);
+	m_ShaderProgram.SetInt("u_Material.DiffuseTex", 0);
+	m_ShaderProgram.SetInt("u_Material.SpecularTex", 1);
 
-	m_ShaderProgram.SetFloat("u_Ambient", 0.2f);
-	m_ShaderProgram.SetFloat("u_Smoothness", 32);
-	m_ShaderProgram.SetFloat3("u_Color", glm::vec3{ 1.0f, 1.0f, 1.0f });
+	m_ShaderProgram.SetFloat("u_Material.AmbientAmt", 0.2f);
+	m_ShaderProgram.SetFloat("u_Material.Smoothness", 0.2f);
+	m_ShaderProgram.SetFloat3("u_Material.Color", glm::vec3{ 1.0f, 1.0f, 1.0f });
+	m_ShaderProgram.SetFloat("u_Material.SpecularAmt", 1.0f);
 
-	m_ShaderProgram.SetFloat3("u_LightPos", glm::vec3{ 1.0f, 1.0f, 1.0f });
-	m_ShaderProgram.SetFloat3("u_LightColor", glm::vec3{ 1.0f, 1.0f, 1.0f });
+	LightColor color = {
+		.Color = glm::vec3{ 1.0f, 1.0f, 1.0f },
+		.SpecularColor = glm::vec3{ 1.0f, 1.0f, 1.0f },
+		.AmbientColor = glm::vec3{ 1.0f, 1.0f, 1.0f }
+	};
+
+	AttenuationTerms attenuation = {
+		.Constant = 1.0,
+		.Linear = 0.9f,
+		.Quadratic = 0.032f
+	};
+
+	m_PointLight.SetColor(color);
+	m_PointLight.SetAttenuation(attenuation);
+
+	m_ShaderProgram.SetFloat3("u_PointLight.Color.Color", m_PointLight.GetColor().Color);
+	m_ShaderProgram.SetFloat3("u_PointLight.Color.SpecularColor", m_PointLight.GetColor().SpecularColor);
+	m_ShaderProgram.SetFloat3("u_PointLight.Color.AmbientColor", m_PointLight.GetColor().AmbientColor);
+
+	m_ShaderProgram.SetFloat("u_PointLight.Attenuation.Constant", m_PointLight.GetAttenuation().Constant);
+	m_ShaderProgram.SetFloat("u_PointLight.Attenuation.Linear", m_PointLight.GetAttenuation().Linear);
+	m_ShaderProgram.SetFloat("u_PointLight.Attenuation.Quadratic", m_PointLight.GetAttenuation().Quadratic);
 }
 
 void GameApplication::OnUpdate(float deltaTime)
@@ -208,6 +388,9 @@ void GameApplication::OnUpdate(float deltaTime)
 	m_Camera.OnUpdate(deltaTime);
 
 	glm::mat4 modelTransform = glm::mat4(1.0f);
+	m_PointLight.SetPosition(m_Camera.GetPosition());
+
+	m_ShaderProgram.SetFloat3("u_PointLight.Position", m_PointLight.GetPosition());
 
 	m_ShaderProgram.SetMat4("u_Model", modelTransform);
 	m_ShaderProgram.SetMat4("u_View", m_Camera.GetViewTransform());
@@ -220,7 +403,7 @@ void GameApplication::OnUpdate(float deltaTime)
 void GameApplication::OnRender()
 {
 	glClearColor(0.07f, 0.07f, 0.08f, 1.0f);
-	glDrawElements(GL_TRIANGLES, std::size(m_Indices), GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, m_NumVertexIndex, GL_UNSIGNED_INT, nullptr);
 }
 
 void GameApplication::OnEnd()

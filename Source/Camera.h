@@ -49,9 +49,9 @@ private:
 	glm::mat4 m_ProjectionTransform;
 	glm::mat4 m_ViewTransform;
 
-	Rotation m_Rotation;
-	glm::vec3 m_Position;
-	glm::vec3 m_Direction;
+	Rotation m_Rotation = { 0.0f, 0.0f };
+	glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 m_Direction = { 0.0f, 0.0f, 0.0f };
 
 	DirectionalVectors m_DirectionalVecs;
 
