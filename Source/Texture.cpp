@@ -58,6 +58,7 @@ void Texture::Load(const std::string& filePath)
 		case 4:
 			internalFormat = GL_RGBA8;
 			dataFormat = GL_RGBA;
+			break;
 
 		default:
 			assert(false);

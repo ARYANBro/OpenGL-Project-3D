@@ -33,9 +33,9 @@ void Camera::Rotate(Rotation rotation) noexcept
 
 glm::mat4 Camera::ConstructLookAtMatrix(glm::vec3 cameraPos, glm::vec3 targetPos, glm::vec3 worldUp) noexcept
 {
-	m_DirectionalVecs.Forward = glm::normalize(cameraPos - targetPos);
-	m_DirectionalVecs.Right = glm::normalize(glm::cross(worldUp, m_DirectionalVecs.Forward));
-	m_DirectionalVecs.Up = glm::cross(m_DirectionalVecs.Forward, m_DirectionalVecs.Right);
+	m_DirectionalVecs.Forward = glm::normalize(targetPos - cameraPos);
+	m_DirectionalVecs.Right = glm::normalize(glm::cross(m_DirectionalVecs.Forward, worldUp));
+	m_DirectionalVecs.Up = glm::cross(m_DirectionalVecs.Right, m_DirectionalVecs.Forward);
 
 	glm::mat4 rotation(1.0f);
 	rotation[0][0] = m_DirectionalVecs.Right.x;
@@ -46,9 +46,9 @@ glm::mat4 Camera::ConstructLookAtMatrix(glm::vec3 cameraPos, glm::vec3 targetPos
 	rotation[1][1] = m_DirectionalVecs.Up.y;
 	rotation[2][1] = m_DirectionalVecs.Up.z;
 
-	rotation[0][2] = m_DirectionalVecs.Forward.x;
-	rotation[1][2] = m_DirectionalVecs.Forward.y;
-	rotation[2][2] = m_DirectionalVecs.Forward.z;
+	rotation[0][2] = -m_DirectionalVecs.Forward.x;
+	rotation[1][2] = -m_DirectionalVecs.Forward.y;
+	rotation[2][2] = -m_DirectionalVecs.Forward.z;
 
 	glm::mat4 translation = glm::translate(glm::mat4(1.0f), -cameraPos);
 

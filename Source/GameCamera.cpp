@@ -21,9 +21,9 @@ void GameCamera::OnUpdate(float deltaTime)
 
 	auto getKey = [this](int key) { return glfwGetKey(Application::GetInstance().GetWindow().GetHandle(), key); };
 
-	if (getKey(GLFW_KEY_W))
+	if (getKey(GLFW_KEY_S))
 		velocity = -GetDirectionalVectors().Forward;
-	else if (getKey(GLFW_KEY_S))
+	else if (getKey(GLFW_KEY_W))
 		velocity = GetDirectionalVectors().Forward;
 
 	if (getKey(GLFW_KEY_A))

@@ -22,12 +22,13 @@ public:
 
 private:
 	std::size_t m_NumVertexIndex;
-
 	PointLight m_PointLight;
+	DirectionalLight m_DirLight;
+	SpotLight m_SpotLight;
 	VertexArray m_VertexArray;
 	ShaderProgram m_ShaderProgram;
 	Texture m_DiffuseTex;
 	Texture m_SpecularTex;
-
+	Texture m_NormalMap;
 	GameCamera m_Camera;
 };
