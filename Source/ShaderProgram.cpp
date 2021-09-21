@@ -90,6 +90,16 @@ void ShaderProgram::SetInt(const std::string& name, int value) const
 	glProgramUniform1i(m_RendererID, location, value);
 }
 
+void ShaderProgram::SetUint(const std::string& name, std::uint_fast32_t value) const
+{
+	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+
+	if (location == -1)
+		throw ShaderError(name + " uniform location not found");
+
+	glProgramUniform1ui(m_RendererID, location, value);
+}
+
 void ShaderProgram::SetFloat(const std::string& name, float value) const
 {
 	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
