@@ -4,6 +4,12 @@
 
 #include <utility>
 
+Buffer::Buffer(std::size_t size) noexcept
+{
+	glCreateBuffers(1, &m_RendererID);
+	glNamedBufferStorage(m_RendererID, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+}
+
 Buffer::Buffer(const void* data, std::size_t size) noexcept
 	: m_Size(size)
 {
@@ -19,6 +25,11 @@ Buffer::Buffer(Buffer&& buffer) noexcept
 Buffer::~Buffer() noexcept
 {
 	glDeleteBuffers(1, &m_RendererID);
+}
+
+void Buffer::SubData(const void* data, std::size_t size, std::size_t offset) noexcept
+{
+	glNamedBufferSubData(m_RendererID, offset, size, data);
 }
 
 Buffer& Buffer::operator=(Buffer&& buffer) noexcept

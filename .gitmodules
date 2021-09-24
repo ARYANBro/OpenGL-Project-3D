@@ -6,4 +6,4 @@
 	url = https://github.com/g-truc/glm.git
 [submodule "Vendor/assimp"]
 	path = Vendor/assimp
-	url = https://github.com/ARYANBro/assimp.git
+	url = https://github.com/assimp/assimp.git

@@ -7,6 +7,11 @@ VertexArray::VertexArray() noexcept
 	glCreateVertexArrays(1, &m_RendererID);
 }
 
+VertexArray::VertexArray(VertexArray&& other) noexcept
+{
+	*this = std::move(other);
+}
+
 VertexArray::~VertexArray() noexcept
 {
 	glDeleteVertexArrays(1, &m_RendererID);
@@ -30,7 +35,7 @@ void VertexArray::BindVertexBuffer(std::size_t index, std::unique_ptr<Buffer> bu
 	m_VertexBuffers.push_front(std::move(buffer));
 }
 
-void VertexArray::BindIndexBuffer(std::unique_ptr<Buffer> buffer, std::uint_fast32_t count) noexcept
+void VertexArray::BindIndexBuffer(std::unique_ptr<Buffer> buffer) noexcept
 {
 	glVertexArrayElementBuffer(m_RendererID, buffer->GetRendererID());
 	m_IndexBuffer = std::move(buffer);
@@ -54,4 +59,18 @@ void VertexArray::DisableAttribute(std::size_t attributeIndex) const noexcept
 void VertexArray::SetAttributeFormat(std::size_t attributeIndex, AttributeFormat attributeFormat) const noexcept
 {
 	glVertexArrayAttribFormat(m_RendererID, attributeIndex, attributeFormat.Size, attributeFormat.Type, attributeFormat.Normalized, attributeFormat.RelativeOffset);
+}
+
+VertexArray& VertexArray::operator=(VertexArray&& other) noexcept
+{
+	if (this != &other)
+	{
+		m_RendererID = other.m_RendererID;
+		m_VertexBuffers = std::move(other.m_VertexBuffers);
+		m_IndexBuffer = std::move(other.m_IndexBuffer);
+
+		other.m_RendererID = 0;
+	}
+
+	return *this;
 }

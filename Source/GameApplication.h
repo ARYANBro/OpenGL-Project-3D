@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Application.h"
-#include "VertexArray.h"
+#include "Mesh.h"
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include "GameCamera.h"
@@ -21,14 +21,17 @@ public:
 	void OnEnd() override;
 
 private:
-	std::size_t m_NumVertexIndex;
+	// Mesh m_Mesh;
+
 	PointLight m_PointLight;
 	DirectionalLight m_DirLight;
 	SpotLight m_SpotLight;
-	VertexArray m_VertexArray;
 	ShaderProgram m_ShaderProgram;
 	Texture m_DiffuseTex;
 	Texture m_SpecularTex;
 	Texture m_NormalMap;
+	Texture m_RoughnessTex;
 	GameCamera m_Camera;
+
+	std::vector<Mesh> m_Meshes;
 };

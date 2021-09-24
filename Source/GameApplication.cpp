@@ -9,8 +9,74 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stb_image.h>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include <iostream>
 #include <vector>
+
+
+static std::pair<std::vector<Vertex>, std::vector<unsigned int>> ProcessMesh(aiMesh* mesh, const aiScene* scene)
+{
+	std::vector<Vertex> vertices;
+
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+	{
+		Vertex vertex;
+
+		aiVector3D aiVertex = mesh->mVertices[i];
+
+		vertex.VertexPos.x = aiVertex.x;
+		vertex.VertexPos.y = aiVertex.y;
+		vertex.VertexPos.z = aiVertex.z;
+
+		aiVector3D aiNormal = mesh->mNormals[i];
+
+		vertex.Normal.x = aiNormal.x;
+		vertex.Normal.y = aiNormal.y;
+		vertex.Normal.z = aiNormal.z;
+
+		assert(mesh->mTextureCoords[0] != nullptr);
+
+		aiVector3D aiTextureCoord = mesh->mTextureCoords[0][i];
+
+		vertex.TextureCoord.x = aiTextureCoord.x;
+		vertex.TextureCoord.y = aiTextureCoord.y;
+
+		aiVector3D aiTangent = mesh->mTangents[0];
+
+		vertex.Tangent.x = aiTangent.x;
+		vertex.Tangent.y = aiTangent.y;
+		vertex.Tangent.z = aiTangent.z;
+
+		vertices.push_back(vertex);
+	}
+
+	std::vector<unsigned int> indices;
+
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+
+		for (unsigned int j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
+
+	return { vertices, indices };
+}
+
+static void ProcessNode(aiNode* node, const aiScene* scene, std::vector<Mesh>& inMeshes)
+{
+	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	{
+		auto [processedVertices, processedIndices] = ProcessMesh(scene->mMeshes[node->mMeshes[i]], scene);
+		inMeshes.emplace_back(processedVertices, processedIndices);
+	}
+
+	for (unsigned int i = 0; i < node->mNumChildren; i++)
+		ProcessNode(node->mChildren[i], scene, inMeshes);
+}
 
 static void SetShaderVarsPointLight(ShaderProgram& shader, const PointLight& light, std::size_t index) noexcept
 {
@@ -55,7 +121,7 @@ void GameApplication::OnBegin()
 {
 	glfwSetInputMode(GetWindow().GetHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	constexpr glm::vec3 vertices[] = {
+	const std::vector<glm::vec3> vertexPositions = {
 		{ -0.5f,  0.5f, -0.5f },
 		{  0.5f,  0.5f, -0.5f },
 		{ -0.5f, -0.5f, -0.5f },
@@ -87,7 +153,7 @@ void GameApplication::OnBegin()
 		{  0.5f, -0.5f, -0.5f },
 	};
 
-	constexpr glm::vec2 textureCoords[] = {
+	const std::vector<glm::vec2> textureCoords = {
 		{ 0.0f, 1.0f },
 		{ 1.0f, 1.0f },
 		{ 0.0f, 0.0f },
@@ -119,7 +185,7 @@ void GameApplication::OnBegin()
 		{ 1.0f, 0.0f },
 	};
 
-	constexpr glm::vec3 normals[] = {
+	const std::vector<glm::vec3> normals = {
 		{ 0.0f, 0.0f, -1.0f },
 		{ 0.0f, 0.0f, -1.0f },
 		{ 0.0f, 0.0f, -1.0f },
@@ -151,7 +217,7 @@ void GameApplication::OnBegin()
 		{ 0.0f, -1.0f, 0.0f }
 	};
 
-	const unsigned int indices[] = {
+	const std::vector<unsigned int> indices = {
 		0, 1, 2,
 		2, 1, 3,
 
@@ -171,82 +237,15 @@ void GameApplication::OnBegin()
 		22, 21, 23
 	};
 
-	m_NumVertexIndex = std::size(indices);
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile("Assets\\3DModels\\Backpack\\backpack.obj", aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
-	AttributeFormat attribFormat0 = {
-		.Size = 3,
-		.Type = GL_FLOAT,
-		.Normalized = false,
-		.RelativeOffset = 0
-	};
+	assert(scene != nullptr && scene->mRootNode != nullptr);
 
-	AttributeFormat attribFormat1 = {
-		.Size = 2,
-		.Type = GL_FLOAT,
-		.Normalized = false,
-		.RelativeOffset = 0
-	};
+	aiMesh* mesh = scene->mMeshes[scene->mRootNode->mChildren[0]->mMeshes[0]];
+	assert(mesh != nullptr);
 
-	AttributeFormat attribFormat2 = {
-		.Size = 3,
-		.Type = GL_FLOAT,
-		.Normalized = false,
-		.RelativeOffset = 0
-	};
-
-	AttributeFormat attribFormat3 = {
-		.Size = 3,
-		.Type = GL_FLOAT,
-		.Normalized = false,
-		.RelativeOffset = 0
-	};
-
-	std::vector<glm::vec3> tangents;
-
-	for (int i = 0; i < std::size(indices); i += 3)
-	{
-		glm::vec3 vertexPos0 = vertices[indices[i]];
-		glm::vec3 vertexPos1 = vertices[indices[i + 1]];
-		glm::vec3 vertexPos2 = vertices[indices[i + 2]];
-
-		glm::vec2 uv0 = textureCoords[indices[i]];
-		glm::vec2 uv1 = textureCoords[indices[i + 1]];
-		glm::vec2 uv2 = textureCoords[indices[i + 2]];
-
-		glm::vec3 edge1 = vertexPos1 - vertexPos0;
-		glm::vec3 edge2 = vertexPos2 - vertexPos0;
-		glm::vec2 deltaUV1 = uv1 - uv0;
-		glm::vec2 deltaUV2 = uv2 - uv0;
-
-		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-
-		glm::vec3 tangent = f * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
-
-		tangents.push_back(tangent);
-		tangents.push_back(tangent);
-	}
-
-	auto vertexBuffer = std::make_unique<Buffer>(vertices, sizeof(vertices));
-	auto textureCoordsVB = std::make_unique<Buffer>(textureCoords, sizeof(textureCoords));
-	auto normalsVB = std::make_unique<Buffer>(normals, sizeof(normals));
-	auto tangentVB = std::make_unique<Buffer>(tangents.data(), tangents.size() * sizeof(glm::vec3));
-	auto indexBuffer = std::make_unique<Buffer>(indices, sizeof(indices));
-
-	m_VertexArray.BindVertexBuffer(0, std::move(vertexBuffer), 3 * sizeof(float));
-	m_VertexArray.BindVertexBuffer(1, std::move(textureCoordsVB), 2 * sizeof(float));
-	m_VertexArray.BindVertexBuffer(2, std::move(normalsVB), 3 * sizeof(float));
-	m_VertexArray.BindVertexBuffer(3, std::move(tangentVB), 3 * sizeof(float));
-	m_VertexArray.BindIndexBuffer(std::move(indexBuffer), std::size(indices));
-
-	m_VertexArray.BindAttribute(0, 0);
-	m_VertexArray.BindAttribute(1, 1);
-	m_VertexArray.BindAttribute(2, 2);
-	m_VertexArray.BindAttribute(3, 3);
-
-	m_VertexArray.SetAttributeFormat(0, attribFormat0);
-	m_VertexArray.SetAttributeFormat(1, attribFormat1);
-	m_VertexArray.SetAttributeFormat(2, attribFormat2);
-	m_VertexArray.SetAttributeFormat(3, attribFormat3);
+	ProcessNode(scene->mRootNode, scene, m_Meshes);
 
 	try
 	{
@@ -279,12 +278,7 @@ void GameApplication::OnBegin()
 
 	glfwSwapInterval(1);
 
-	m_VertexArray.EnableAttribute(0);
-	m_VertexArray.EnableAttribute(1);
-	m_VertexArray.EnableAttribute(2);
-	m_VertexArray.EnableAttribute(3);
-
-	m_VertexArray.Bind();
+	
 	m_ShaderProgram.Bind();
 
 	glEnable(GL_DEPTH_TEST);
@@ -306,9 +300,10 @@ void GameApplication::OnBegin()
 
 	try
 	{
-		m_DiffuseTex.Load("C:\\Users\\nalin\\Downloads\\cobblestone_floor_08_1k.gltf\\textures\\cobblestone_floor_08_diff_1k.jpg");
-		m_SpecularTex.Load("C:\\Users\\nalin\\Downloads\\cobblestone_floor_08_1k.gltf\\textures\\cobblestone_floor_08_rough_1k.jpg");
-		m_NormalMap.Load("C:\\Users\\nalin\\Downloads\\cobblestone_floor_08_1k.gltf\\textures\\cobblestone_floor_08_nor_gl_1k.jpg");
+		m_DiffuseTex.Load("Assets\\3DModels\\Backpack\\diffuse.jpg");
+		m_SpecularTex.Load("Assets\\3DModels\\Backpack\\specular.jpg");
+		m_NormalMap.Load("Assets\\3DModels\\Backpack\\normal.png");
+		m_RoughnessTex.Load("Assets\\3DModels\\Backpack\\roughness.jpg");
 	}
 	catch (const TextureLoadError& e)
 	{
@@ -349,7 +344,6 @@ void GameApplication::OnBegin()
 	
 	m_SpotLight.SetCutOff(std::cos(glm::radians(12.5f)));
 	m_SpotLight.SetOuterCutOff(std::cos(glm::radians(16.5f)));
-
 }
 
 void GameApplication::OnUpdate(float deltaTime)
@@ -364,6 +358,7 @@ void GameApplication::OnRender()
 	m_DiffuseTex.Bind(0);
 	m_SpecularTex.Bind(1);
 	m_NormalMap.Bind(2);
+	m_RoughnessTex.Bind(3);
 
 	m_SpotLight.SetDirection(m_Camera.GetDirectionalVectors().Forward);
 	m_SpotLight.SetPosition(m_Camera.GetPosition());
@@ -380,23 +375,31 @@ void GameApplication::OnRender()
 	m_ShaderProgram.SetInt("u_DiffuseTex", 0);
 	m_ShaderProgram.SetInt("u_SpecularTex", 1);
 	m_ShaderProgram.SetInt("u_NormalMap", 2);
-	m_ShaderProgram.SetFloat("u_Smoothness", 0.15f);
+	m_ShaderProgram.SetInt("u_RoughnessTex", 3);
 	m_ShaderProgram.SetFloat3("u_Color", glm::vec3{ 0.0f});
 	m_ShaderProgram.SetFloat3("u_CameraPos", m_Camera.GetPosition());
 	m_ShaderProgram.SetUint("u_NumActivePointLights", 1);
 	m_ShaderProgram.SetUint("u_NumActiveSpotLights", 1);
 	m_ShaderProgram.SetUint("u_NumActiveDirLights", 1);
 
-	glDrawElements(GL_TRIANGLES, m_NumVertexIndex, GL_UNSIGNED_INT, nullptr);
+	for (Mesh& mesh : m_Meshes)
+	{
+		mesh.GetVertexArray().Bind();
+		glDrawElements(GL_TRIANGLES, mesh.GetNumVertices(), GL_UNSIGNED_INT, nullptr);
+	}
 
-	m_DiffuseTex.Unbind();
-	m_SpecularTex.Unbind();
-	m_NormalMap.Unbind();
+	// m_DiffuseTex.Unbind();
+	// m_RoughnessTex.Unbind();
+	// m_NormalMap.Unbind();
 
-	m_ShaderProgram.SetMat4("u_Model", glm::scale(glm::translate(glm::mat4(1.0f), m_PointLight.GetPosition()), glm::vec3(0.2f)));
-	m_ShaderProgram.SetFloat3("u_Color", glm::vec3{ 1.0f});
+	// m_ShaderProgram.SetMat4("u_Model", glm::scale(glm::translate(glm::mat4(1.0f), m_PointLight.GetPosition()), glm::vec3(0.2f)));
+	// m_ShaderProgram.SetFloat3("u_Color", glm::vec3{ 1.0f});
 
-	glDrawElements(GL_TRIANGLES, m_NumVertexIndex, GL_UNSIGNED_INT, nullptr);
+	// for (Mesh& mesh : m_Meshes)
+	// {
+	// 	mesh.GetVertexArray().Bind();
+	// 	glDrawElements(GL_TRIANGLES, mesh.GetNumVertices(), GL_UNSIGNED_INT, nullptr);
+	// }
 }
 
 void GameApplication::OnEnd()

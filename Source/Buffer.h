@@ -5,10 +5,13 @@
 class Buffer
 {
 public:
+	Buffer(std::size_t size) noexcept;
 	Buffer(const void* data, std::size_t size) noexcept;
 	Buffer(const Buffer&) noexcept = delete;
 	Buffer(Buffer&& buffer) noexcept;
 	~Buffer() noexcept;
+
+	void SubData(const void* data, std::size_t size, std::size_t offset) noexcept;
 
 	Buffer& operator=(const Buffer&) = delete;
 	Buffer& operator=(Buffer&& buffer) noexcept;

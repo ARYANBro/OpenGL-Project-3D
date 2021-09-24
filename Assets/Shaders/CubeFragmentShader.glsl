@@ -49,12 +49,8 @@ uniform vec3 u_CameraPos;
 uniform sampler2D u_DiffuseTex;
 uniform sampler2D u_SpecularTex;
 uniform sampler2D u_NormalMap;
+uniform sampler2D u_RoughnessTex;
 uniform vec3 u_Color;
-uniform float u_Smoothness;
-
-// uniform SpotLight u_SpotLight;
-// uniform PointLight u_PointLight;
-// uniform DirectionalLight u_DirLight;
 
 uniform PointLight u_PointLights[MAX_NUM_LIGHTS];
 uniform SpotLight u_SpotLights[MAX_NUM_LIGHTS];
@@ -74,7 +70,9 @@ vec3 CalculateSpotLight(SpotLight spotLight, vec3 normal, vec3 cameraPos)
 
 	vec3 cameraDir = normalize(cameraPos - v_FragmentPos);
 	vec3 reflectDir = reflect(-lightDir, normal);
-	float specularAmt = pow(max(dot(reflectDir, cameraDir), 0.0f), u_Smoothness * 256);
+
+	float roughnessAmt = texture2D(u_RoughnessTex, v_TextureCoord).x;
+	float specularAmt = pow(max(dot(reflectDir, cameraDir), 0.0f), roughnessAmt * 256);
 	vec3 specular = spotLight.Color.Specular * specularAmt * texture2D(u_SpecularTex, v_TextureCoord).r;
 
 	float theta = dot(lightDir, normalize(-spotLight.Direction));
@@ -104,7 +102,8 @@ vec3 CalculatePointLight(PointLight pointLight, vec3 normal, vec3 cameraPos)
 
 	vec3 cameraDir = normalize(cameraPos - v_FragmentPos);
 	vec3 reflectDir = reflect(-lightDir, normal);
-	float specularAmt = pow(max(dot(reflectDir, cameraDir), 0.0f), u_Smoothness * 256);
+	float roughnessAmt = texture2D(u_RoughnessTex, v_TextureCoord).x;
+	float specularAmt = pow(max(dot(reflectDir, cameraDir), 0.0f), roughnessAmt * 256);
 	vec3 specular = pointLight.Color.Specular * specularAmt * texture2D(u_SpecularTex, v_TextureCoord).r;
 
 	float distance = length(pointLight.Position - v_FragmentPos);
@@ -130,7 +129,8 @@ vec3 CalculateDirLight(DirectionalLight dirLight, vec3 normal, vec3 cameraPos)
 
 	vec3 cameraDir = normalize(cameraPos - v_FragmentPos);
 	vec3 reflectDir = reflect(-lightDir, normal);
-	float specularAmt = pow(max(dot(reflectDir, cameraDir), 0.0f), u_Smoothness * 256);
+	float roughnessAmt = texture2D(u_RoughnessTex, v_TextureCoord).x;
+	float specularAmt = pow(max(dot(reflectDir, cameraDir), 0.0f), roughnessAmt * 256);
 	vec3 specular = dirLight.Color.Specular * specularAmt * texture2D(u_SpecularTex, v_TextureCoord).r;
 
 	return (diffuse + specular + ambient);
