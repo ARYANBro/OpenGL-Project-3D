@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <string>
 #include <stdexcept>
+#include <unordered_map>
+#include <memory>
 
 class TextureError : public std::runtime_error
 {
@@ -27,6 +29,7 @@ class Texture
 {
 public:
 	Texture() noexcept;
+	explicit Texture(const std::string& filePath);
 	Texture(const Texture&) = delete;
 	Texture(Texture&& texture);
 	~Texture() noexcept;
@@ -50,4 +53,13 @@ private:
 	int m_Height;
 	int m_NumColorChannels;
 	std::uint_fast32_t m_RendererID;
+};
+
+class TextureLibrary
+{
+public:
+	static std::shared_ptr<Texture> Load(const std::string& path) noexcept;
+	static std::shared_ptr<Texture> Find(const std::string& path) noexcept;
+private:
+	static std::unordered_map<std::string, std::shared_ptr<Texture>> s_Textures;
 };

@@ -1,36 +1,41 @@
-#include "ShaderProgram.h"
+#include "Shader.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
 #include <utility>
 #include <memory>
 
-ShaderProgram::ShaderProgram() noexcept
-	: m_RendererID(glCreateProgram())
+Shader::Shader() noexcept
+	: Shader(std::string())
 {
 }
 
-ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram) noexcept
+Shader::Shader(const std::string& name) noexcept
+	: m_RendererID(glCreateProgram()), m_Name(name)
 {
-	*this = std::move(shaderProgram);
 }
 
-ShaderProgram::~ShaderProgram() noexcept
+Shader::Shader(Shader&& shader) noexcept
+{
+	*this = std::move(shader);
+}
+
+Shader::~Shader() noexcept
 {
 	glDeleteProgram(m_RendererID);
 }
 
-void ShaderProgram::Bind() const noexcept
+void Shader::Bind() const noexcept
 {
 	glUseProgram(m_RendererID);
 }
 
-void ShaderProgram::Unbind() const noexcept
+void Shader::Unbind() const noexcept
 {
 	glUseProgram(0);
 }
 
-void ShaderProgram::AttachShader(const std::string& source, GLenum type)
+void Shader::AttachShader(const std::string& source, GLenum type)
 {
 	GLuint shader = glCreateShader(type);
 	
@@ -57,7 +62,7 @@ void ShaderProgram::AttachShader(const std::string& source, GLenum type)
 	m_Shaders.push_front(shader);
 }
 
-void ShaderProgram::Link()
+void Shader::Link()
 {
 	glLinkProgram(m_RendererID);
 
@@ -80,7 +85,7 @@ void ShaderProgram::Link()
 		glDeleteShader(shader);
 }
 
-void ShaderProgram::SetInt(const std::string& name, int value) const
+void Shader::SetInt(const std::string& name, int value) const
 {
 	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 
@@ -90,7 +95,7 @@ void ShaderProgram::SetInt(const std::string& name, int value) const
 	glProgramUniform1i(m_RendererID, location, value);
 }
 
-void ShaderProgram::SetUint(const std::string& name, std::uint_fast32_t value) const
+void Shader::SetUint(const std::string& name, std::uint_fast32_t value) const
 {
 	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 
@@ -100,7 +105,7 @@ void ShaderProgram::SetUint(const std::string& name, std::uint_fast32_t value) c
 	glProgramUniform1ui(m_RendererID, location, value);
 }
 
-void ShaderProgram::SetFloat(const std::string& name, float value) const
+void Shader::SetFloat(const std::string& name, float value) const
 {
 	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 
@@ -110,7 +115,7 @@ void ShaderProgram::SetFloat(const std::string& name, float value) const
 	glProgramUniform1f(m_RendererID, location, value);
 }
 
-void ShaderProgram::SetFloat3(const std::string& name, glm::vec3 value) const
+void Shader::SetFloat3(const std::string& name, glm::vec3 value) const
 {
 	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 
@@ -120,7 +125,7 @@ void ShaderProgram::SetFloat3(const std::string& name, glm::vec3 value) const
 	glProgramUniform3f(m_RendererID, location, value.x, value.y, value.z);
 }
 
-void ShaderProgram::SetMat4(const std::string& name, glm::mat4 value) const
+void Shader::SetMat4(const std::string& name, glm::mat4 value) const
 {
 	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 
@@ -130,13 +135,40 @@ void ShaderProgram::SetMat4(const std::string& name, glm::mat4 value) const
 	glProgramUniformMatrix4fv(m_RendererID, location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) noexcept
+Shader& Shader::operator=(Shader&& shader) noexcept
 {
-	if (this != &shaderProgram)
+	if (this != &shader)
 	{
-		m_RendererID = shaderProgram.m_RendererID;
-		shaderProgram.m_RendererID = 0;
+		m_RendererID = shader.m_RendererID;
+		m_Name = shader.m_Name;
+
+		shader.m_Name = std::string();
+		shader.m_RendererID = 0;
 	}
 
 	return *this;
+}
+
+std::unordered_map<std::string, std::shared_ptr<Shader>> ShaderLibrary::s_Shaders;
+
+std::shared_ptr<Shader> ShaderLibrary::Load(const std::string& name)
+{
+	auto shader = Find(name);
+
+	if (shader == nullptr)
+	{
+		shader = std::make_shared<Shader>(name);
+		s_Shaders[name] = shader;
+	}
+
+	return shader;
+}
+
+std::shared_ptr<Shader> ShaderLibrary::Find(const std::string& name) noexcept
+{
+	auto it = s_Shaders.find(name);
+	if (it == s_Shaders.end())
+		return nullptr;
+
+	return it->second;
 }

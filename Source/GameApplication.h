@@ -1,13 +1,9 @@
 #pragma once
 
 #include "Application.h"
-#include "Mesh.h"
-#include "ShaderProgram.h"
-#include "Texture.h"
+#include "ModelLoader3D.h"
 #include "GameCamera.h"
 #include "Lights.h"
-
-#include <glm/glm.hpp>
 
 class GameApplication : public Application
 {
@@ -21,17 +17,16 @@ public:
 	void OnEnd() override;
 
 private:
-	// Mesh m_Mesh;
+	std::vector<std::shared_ptr<PointLight>> m_PointLights;
+	std::vector<std::shared_ptr<DirectionalLight>> m_DirLights;
+	std::vector<std::shared_ptr<SpotLight>> m_SpotLights;
 
-	PointLight m_PointLight;
-	DirectionalLight m_DirLight;
-	SpotLight m_SpotLight;
-	ShaderProgram m_ShaderProgram;
-	Texture m_DiffuseTex;
-	Texture m_SpecularTex;
-	Texture m_NormalMap;
-	Texture m_RoughnessTex;
+	std::shared_ptr<PointLight> m_PointLight;
+	std::shared_ptr<DirectionalLight> m_DirLight;
+	std::shared_ptr<SpotLight> m_SpotLight;
+
 	GameCamera m_Camera;
 
-	std::vector<Mesh> m_Meshes;
+	RenderObject m_Vase;
+	RenderObject m_Barrel;
 };

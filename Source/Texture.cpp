@@ -18,6 +18,12 @@ Texture::Texture() noexcept
 	SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }
 
+Texture::Texture(const std::string& filePath)
+	: Texture()
+{
+	Load(filePath);
+}
+
 Texture::Texture(Texture&& texture)
 {
 	*this = std::move(texture);
@@ -99,4 +105,28 @@ Texture& Texture::operator=(Texture&& texture) noexcept
 	}
 
 	return *this;
+}
+
+std::unordered_map<std::string, std::shared_ptr<Texture>> TextureLibrary::s_Textures;
+
+std::shared_ptr<Texture> TextureLibrary::Load(const std::string& path) noexcept
+{
+	auto texture = Find(path);
+	
+	if (texture == nullptr)
+	{
+		texture = std::make_shared<Texture>();	
+		s_Textures[path] = texture;
+	}
+	
+	return texture;
+}
+
+std::shared_ptr<Texture> TextureLibrary::Find(const std::string& path) noexcept
+{
+	auto it = s_Textures.find(path);
+	if (it == s_Textures.end())
+		return nullptr;
+
+	return it->second;
 }

@@ -1,13 +1,14 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
-
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
 #include <forward_list>
 #include <stdexcept>
+#include <unordered_map>
+#include <memory>
+#include <cstdint>
+#include <string>
 
 class ShaderError : public std::runtime_error
 {
@@ -42,13 +43,14 @@ private:
 	std::string m_InfoLog;
 };
 
-class ShaderProgram
+class Shader
 {
 public:
-	ShaderProgram() noexcept;
-	ShaderProgram(ShaderProgram&& shaderProgram) noexcept;
-	ShaderProgram(const ShaderProgram&) = delete;
-	~ShaderProgram() noexcept;
+	Shader() noexcept;
+	explicit Shader(const std::string& name) noexcept;
+	Shader(Shader&& shader) noexcept;
+	Shader(const Shader&) = delete;
+	~Shader() noexcept;
 
 	void Bind() const noexcept;
 	void Unbind() const noexcept;
@@ -60,13 +62,26 @@ public:
 	void SetFloat(const std::string& name, float value) const;
 	void SetFloat3(const std::string& name, glm::vec3 value) const;
 	void SetMat4(const std::string& name, glm::mat4 value) const;
-
-	ShaderProgram& operator=(ShaderProgram&) = delete;
-	ShaderProgram& operator=(ShaderProgram&& shader) noexcept;
+	void SetName(const std::string& name) noexcept { m_Name = name; }
 
 	std::uint_fast32_t GetRendererID() const noexcept { return m_RendererID; }
+	const std::string& GetName() const noexcept { return m_Name; }
+
+	Shader& operator=(Shader&) = delete;
+	Shader& operator=(Shader&& shader) noexcept;
 
 private:
 	std::uint_fast32_t m_RendererID;
 	std::forward_list<GLuint> m_Shaders;
+	std::string m_Name;
+};
+
+class ShaderLibrary
+{
+public:
+	static std::shared_ptr<Shader> Load(const std::string& name);
+	static std::shared_ptr<Shader> Find(const std::string& name) noexcept;
+
+private:
+	static std::unordered_map<std::string, std::shared_ptr<Shader>> s_Shaders;
 };

@@ -1,0 +1,15 @@
+# Blender MTL File: 'ceramic_vase_02_1k.blend'
+# Material Count: 1
+
+newmtl ceramic_vase_02
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Textures\\ceramic_vase_02_nor_gl_1k.jpg
+map_Kd Textures\\ceramic_vase_02_diff_1k.jpg
+map_Ks Textures\\ceramic_vase_02_smooth_1k.jpg
