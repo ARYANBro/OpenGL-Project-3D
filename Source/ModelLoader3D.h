@@ -23,4 +23,8 @@ public:
 
 private:
 	static Assimp::Importer s_Importer;
+
+private:
+	static void ProcessNode(const std::string& filePath, aiNode* node, const aiScene* scene, RenderObject& inRenderObj) noexcept;
+	static Model ProcessMesh(const std::string& filePath, aiMesh* mesh, const aiScene* scene) noexcept;
 };

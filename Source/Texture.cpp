@@ -36,6 +36,7 @@ Texture::~Texture() noexcept
 
 void Texture::Load(const std::string& filePath)
 {
+	m_FilePath = filePath;
 	stbi_uc* pixels = stbi_load(filePath.c_str(), &m_Width, &m_Height, &m_NumColorChannels, 0);
 
 	if (!pixels)
@@ -84,12 +85,13 @@ void Texture::SetParameter(unsigned int parameterName, int value) const noexcept
 
 void Texture::Bind(unsigned int textureUnit) const noexcept
 {
+	m_TextureUnit = textureUnit;
 	glBindTextureUnit(textureUnit, m_RendererID);	
 }
 
 void Texture::Unbind() const noexcept
 {
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTextureUnit(m_TextureUnit, 0);
 }
 
 Texture& Texture::operator=(Texture&& texture) noexcept
@@ -100,6 +102,7 @@ Texture& Texture::operator=(Texture&& texture) noexcept
 		m_Width = texture.m_Width;
 		m_Height = texture.m_Height;
 		m_NumColorChannels = texture.m_NumColorChannels;
+		m_FilePath = texture.m_FilePath;
 
 		texture.m_RendererID = 0;
 	}
@@ -107,26 +110,20 @@ Texture& Texture::operator=(Texture&& texture) noexcept
 	return *this;
 }
 
-std::unordered_map<std::string, std::shared_ptr<Texture>> TextureLibrary::s_Textures;
+std::vector<Texture> TextureLibrary::s_Textures;
 
-std::shared_ptr<Texture> TextureLibrary::Load(const std::string& path) noexcept
+Texture* TextureLibrary::Find(std::uint_fast32_t rendererID) noexcept
 {
-	auto texture = Find(path);
-	
-	if (texture == nullptr)
-	{
-		texture = std::make_shared<Texture>();	
-		s_Textures[path] = texture;
-	}
-	
-	return texture;
+	return FindIf([rendererID](Texture& texture) { return texture.GetRendererID() == rendererID; });
 }
 
-std::shared_ptr<Texture> TextureLibrary::Find(const std::string& path) noexcept
+Texture* TextureLibrary::FindIf(const std::function<bool(Texture&)>& function)
 {
-	auto it = s_Textures.find(path);
-	if (it == s_Textures.end())
-		return nullptr;
+	for (auto& texture : s_Textures)
+	{
+		if (function(texture))
+			return &texture;
+	}
 
-	return it->second;
+	return nullptr;
 }

@@ -5,7 +5,8 @@
 
 #include <forward_list>
 #include <stdexcept>
-#include <unordered_map>
+#include <functional>
+#include <vector>
 #include <memory>
 #include <cstdint>
 #include <string>
@@ -79,9 +80,17 @@ private:
 class ShaderLibrary
 {
 public:
-	static std::shared_ptr<Shader> Load(const std::string& name);
-	static std::shared_ptr<Shader> Find(const std::string& name) noexcept;
+	template<typename... Args>
+	static std::uint_fast32_t Create(Args&&... args);
+	static Shader* FindIf(const std::function<bool(Shader&)>& condition);
+	static Shader* Find(std::uint_fast32_t rendererID) noexcept;
 
 private:
-	static std::unordered_map<std::string, std::shared_ptr<Shader>> s_Shaders;
+	static std::vector<Shader> s_Shaders;
 };
+
+template<typename... Args>
+std::uint_fast32_t ShaderLibrary::Create(Args&&... args)
+{
+	return s_Shaders.emplace_back(std::forward<Args>(args)...).GetRendererID();
+}

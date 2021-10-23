@@ -11,6 +11,11 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 	Init(vertices, indices);
 }
 
+Mesh::Mesh(Mesh&& other) noexcept
+{
+	*this = std::move(other);
+}
+
 void Mesh::Init(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) noexcept
 {
 	m_NumVertices = indices.size();
@@ -62,4 +67,16 @@ void Mesh::Init(const std::vector<Vertex>& vertices, const std::vector<unsigned 
 
 	auto indexBuffer = std::make_unique<Buffer>(indices.data(), indices.size() * sizeof(unsigned int));
 	m_VertexArray.BindIndexBuffer(std::move(indexBuffer));
+}
+
+Mesh& Mesh::operator=(Mesh&& other) noexcept
+{
+	if (this != &other)
+	{
+		m_Name = std::move(other.m_Name);
+		m_VertexArray = std::move(other.m_VertexArray);
+		m_NumVertices = other.m_NumVertices;
+	}
+
+	return *this;
 }

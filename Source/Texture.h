@@ -3,7 +3,8 @@
 #include <cstdint>
 #include <string>
 #include <stdexcept>
-#include <unordered_map>
+#include <vector>
+#include <functional>
 #include <memory>
 
 class TextureError : public std::runtime_error
@@ -43,7 +44,9 @@ public:
 	int GetWidth() const noexcept { return m_Width; }
 	int GetHeight() const noexcept { return m_Height; }
 	int GetNumColorChannels() const noexcept { return m_NumColorChannels; }
+	const std::string& GetFilePath() const noexcept { return m_FilePath; }
 	std::uint_fast32_t GetRendererID() const noexcept { return m_RendererID; }
+	std::uint_fast32_t GetTextureUnit() const noexcept { return m_TextureUnit; }
 
 	Texture& operator=(const Texture&) = delete;
 	Texture& operator=(Texture&&) noexcept;
@@ -52,14 +55,26 @@ private:
 	int m_Width;
 	int m_Height;
 	int m_NumColorChannels;
+	std::string m_FilePath;
 	std::uint_fast32_t m_RendererID;
+	mutable std::uint_fast32_t m_TextureUnit;
 };
 
 class TextureLibrary
 {
 public:
-	static std::shared_ptr<Texture> Load(const std::string& path) noexcept;
-	static std::shared_ptr<Texture> Find(const std::string& path) noexcept;
+	template<typename... Args>
+	static std::uint_fast32_t Create(Args&&... args);
+
+	static Texture* Find(std::uint_fast32_t rendererID) noexcept;
+	static Texture* FindIf(const std::function<bool(Texture&)>& condition);
+
 private:
-	static std::unordered_map<std::string, std::shared_ptr<Texture>> s_Textures;
+	static std::vector<Texture> s_Textures;
 };
+
+template<typename... Args>
+std::uint_fast32_t TextureLibrary::Create(Args&&... args)
+{
+	return s_Textures.emplace_back(std::forward<Args>(args)...).GetRendererID();
+}

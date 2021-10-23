@@ -15,8 +15,8 @@ void GameApplication::OnBegin()
 
 	Renderer::Init(&m_Camera);
 
-	m_Vase = ModelLoader3D::ReadFile("Assets\\3DModels\\Vase\\ceramic_vase_02_1k.obj", aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-	m_Barrel = ModelLoader3D::ReadFile("Assets\\3DModels\\Barrel\\wine_barrel_01_1k.obj", aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+	m_Backpack = ModelLoader3D::ReadFile("Assets\\3DModels\\Backpack\\backpack.obj", aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_FlipUVs);
+	m_Plane = ModelLoader3D::ReadFile("Assets\\3DModels\\Plane\\Plane.obj", aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 	
 	glEnable(GL_DEPTH_TEST);
 
@@ -28,7 +28,7 @@ void GameApplication::OnBegin()
 	};
 
 	m_Camera.SetCameraProperties(cameraProps);
-	m_Camera.Translate(glm::vec3{ 0.0f, 0.0f, 2.0f });
+	m_Camera.Translate(glm::vec3{ 0.0f, 2.0f, 2.0f });
 	m_Camera.LookAt(glm::vec3{ 0.0f, 0.0f, 0.0f });
 	m_Camera.SetMouseSenstivity(0.15f);
 	m_Camera.SetSpeed(1.5f);
@@ -70,25 +70,23 @@ void GameApplication::OnBegin()
 	m_SpotLight->SetCutOff(std::cos(glm::radians(12.5f)));
 	m_SpotLight->SetOuterCutOff(std::cos(glm::radians(16.5f)));
 
-	glm::mat4 translated = glm::translate(glm::mat4(1.0f), glm::vec3{ 1.0f, 0.0f, 0.0f });
-	m_Vase.SetTransform(translated);
+	glm::mat4 translated = glm::translate(glm::mat4(1.0f), glm::vec3{ 2.0f, 0.6f, 0.0f });
+	m_Backpack.SetTransform(glm::scale(translated, glm::vec3(0.3f)));
 }
 
 void GameApplication::OnUpdate(float deltaTime)
 {
 	m_Camera.OnUpdate(deltaTime);
+	m_SpotLight->SetDirection(m_Camera.GetDirectionalVectors().Forward);
+	m_SpotLight->SetPosition(m_Camera.GetPosition());
 }
 
 void GameApplication::OnRender()
 {
 	Renderer::SetClearColor({ 0.07f, 0.07f, 0.08f, 1.0f });
 	Renderer::OnRender(m_PointLights, m_SpotLights, m_DirLights);
-
-	m_SpotLight->SetDirection(m_Camera.GetDirectionalVectors().Forward);
-	m_SpotLight->SetPosition(m_Camera.GetPosition());
-
-	Renderer::Render(m_Barrel, m_Barrel.GetTransform());
-	Renderer::Render(m_Vase, m_Vase.GetTransform());
+	Renderer::Render(m_Backpack, m_Backpack.GetTransform());
+	Renderer::Render(m_Plane, m_Plane.GetTransform());
 }
 
 void GameApplication::OnEnd()

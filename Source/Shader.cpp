@@ -149,26 +149,20 @@ Shader& Shader::operator=(Shader&& shader) noexcept
 	return *this;
 }
 
-std::unordered_map<std::string, std::shared_ptr<Shader>> ShaderLibrary::s_Shaders;
+std::vector<Shader> ShaderLibrary::s_Shaders;
 
-std::shared_ptr<Shader> ShaderLibrary::Load(const std::string& name)
+Shader* ShaderLibrary::Find(std::uint_fast32_t rendererID) noexcept
 {
-	auto shader = Find(name);
-
-	if (shader == nullptr)
-	{
-		shader = std::make_shared<Shader>(name);
-		s_Shaders[name] = shader;
-	}
-
-	return shader;
+	return FindIf([rendererID](Shader& shader) { return shader.GetRendererID() == rendererID; });
 }
 
-std::shared_ptr<Shader> ShaderLibrary::Find(const std::string& name) noexcept
+Shader* ShaderLibrary::FindIf(const std::function<bool(Shader&)>& condition)
 {
-	auto it = s_Shaders.find(name);
-	if (it == s_Shaders.end())
-		return nullptr;
+	for (Shader& shader : s_Shaders)
+	{
+		if (condition(shader))
+			return &shader;
+	}
 
-	return it->second;
+	return nullptr;
 }

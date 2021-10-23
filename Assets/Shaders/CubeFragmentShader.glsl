@@ -4,6 +4,7 @@ out vec4 v_Color;
 
 in vec2 v_TextureCoord;
 in vec3 v_FragmentPos;
+in vec3 v_Normal;
 in mat3 v_TBN;
 
 struct LightColor
@@ -174,8 +175,19 @@ vec3 CalculateDirLight(DirectionalLight dirLight, vec3 normal, vec3 cameraPos)
 
 void main()
 {
-	vec3 normal = (2 * texture2D(u_Material.NormalMap, v_TextureCoord).rgb) - 1;
-	normal = normalize(v_TBN * normal);
+	vec3 normal;
+	vec3 normalVec = texture2D(u_Material.NormalMap, v_TextureCoord).rgb;
+
+	if (normalVec != 0)
+	{
+		normal = normalVec;
+		normal = (2 * normal - 1);
+		normal = normalize(v_TBN * normal);
+	}
+	else 
+	{
+		normal = normalize(v_Normal);
+	}
 
 	vec3 result;
 

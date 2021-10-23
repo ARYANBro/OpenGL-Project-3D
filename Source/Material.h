@@ -5,48 +5,49 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
+#include <functional>
+
 class Material
 {
 public:
-	Material(const std::string& name) noexcept
-		: m_Name(name) {}
+	Material(std::uint_fast32_t shaderID) noexcept
+		: m_ShaderID(shaderID) {}
 
-	Material(const std::shared_ptr<Shader>& shader, const std::string& name) noexcept
-		: m_Shader(shader), m_Name(name) {}
+	Material(const Material&) noexcept = default;
 
 	void Bind() const noexcept;
 	void Unbind() const noexcept;
 	void UpdateUniforms() const noexcept;
 
-	void SetShaderProgram(const std::shared_ptr<Shader>& shader) noexcept { m_Shader = shader; }
-	void SetDiffuseTexture(const std::shared_ptr<Texture>& texture) noexcept { m_DiffuseTex = texture; }
-	void SetSpecularTexture(const std::shared_ptr<Texture>& texture) noexcept { m_SpecularTex = texture; }
-	void SetNormalMap(const std::shared_ptr<Texture>& texture) noexcept { m_NormalMap = texture; }
+	void SetDiffuseTexture(std::uint_fast32_t textureID) noexcept { m_DiffuseTexID = textureID; }
+	void SetSpecularTexture(std::uint_fast32_t textureID) noexcept { m_SpecularTexID = textureID; }
+	void SetNormalMap(std::uint_fast32_t textureID) noexcept { m_NormalMapID = textureID; }
 	void SetSpecularExponent(float exponent) noexcept { m_SpecularExp = exponent; }
 	void SetDiffuse(glm::vec3 diffuse) noexcept { m_Diffuse = diffuse; }
 	void SetSpecular(glm::vec3 specular) noexcept { m_Specular = specular; }
 	void SetAmbient(glm::vec3 ambient) noexcept { m_Ambient = ambient; }
 
-	const Shader& GetShaderProgram() const noexcept { return *m_Shader; }
-	const Texture& GetDiffuseTexture() const noexcept { return *m_DiffuseTex; }
-	const Texture& GetSpecularTexture() const noexcept { return *m_SpecularTex; }
-	const Texture& GetNormalMap() const noexcept { return *m_NormalMap; }
+	std::uint_fast32_t GetShaderProgram() const noexcept { return m_ShaderID; }
+	std::uint_fast32_t GetDiffuseTextureID() const noexcept { return m_DiffuseTexID; }
+	std::uint_fast32_t GetSpecularTextureID() const noexcept { return m_SpecularTexID; }
+	std::uint_fast32_t GetNormalMapID() const noexcept { return m_NormalMapID; }
 	float GetSpecularExponent() const noexcept { return m_SpecularExp; }
 	glm::vec3 GetDiffuse() const noexcept { return m_Diffuse; }
 	glm::vec3 GetSpecular() const noexcept { return m_Specular; }
 	glm::vec3 GetAmbient() const noexcept { return m_Ambient; }
-	const std::string& GetName() const noexcept { return m_Name; }
+
+	Material& operator=(Material&) noexcept = default;
 
 private:
-	std::shared_ptr<Shader> m_Shader;
+	std::uint_fast32_t m_ShaderID = 0;
 
-	std::shared_ptr<Texture> m_DiffuseTex;
-	std::shared_ptr<Texture> m_SpecularTex;
-	std::shared_ptr<Texture> m_NormalMap;
+	std::uint_fast32_t m_DiffuseTexID = 0;
+	std::uint_fast32_t m_SpecularTexID = 0;
+	std::uint_fast32_t m_NormalMapID = 0;
 
 	float m_SpecularExp;
 	glm::vec3 m_Diffuse;
 	glm::vec3 m_Specular;
 	glm::vec3 m_Ambient;
-	std::string m_Name;
 };

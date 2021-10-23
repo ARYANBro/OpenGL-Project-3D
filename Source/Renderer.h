@@ -18,7 +18,9 @@ public:
 	static void OnRender(const std::vector<std::shared_ptr<PointLight>>& pointLights, const std::vector<std::shared_ptr<SpotLight>>& spotLights, const std::vector<std::shared_ptr<DirectionalLight>>& dirLights) noexcept;
 	static void Render(const RenderObject& object, const glm::mat4& transform) noexcept;
 
+	static std::uint_fast32_t GetShaderID() noexcept { return s_ShaderID; }
+
 private:
 	static Camera* s_Camera;
-	static std::shared_ptr<Shader> s_Shader;
+	static std::uint_fast32_t s_ShaderID;
 };

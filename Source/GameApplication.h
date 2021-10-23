@@ -27,6 +27,6 @@ private:
 
 	GameCamera m_Camera;
 
-	RenderObject m_Vase;
-	RenderObject m_Barrel;
+	RenderObject m_Backpack;
+	RenderObject m_Plane;
 };
